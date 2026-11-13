@@ -1,0 +1,14 @@
+{
+  "name": "@wxagent/sdk",
+  "version": "0.1.0",
+  "description": "WeChat bot SDK for Node.js, built on Tencent's official iLink bot API: QR login, receive and send messages.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist"],
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "engines": { "node": ">=22.13.0" },
+  "scripts": { "build": "tsdown", "typecheck": "tsc -p tsconfig.json" },
+  "publishConfig": { "access": "public" },
+  "keywords": ["wechat", "weixin", "ilink", "bot", "agent"]
+}

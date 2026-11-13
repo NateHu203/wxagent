@@ -1,0 +1,20 @@
+{
+  "name": "wxagent",
+  "version": "0.1.0",
+  "description": "A personal AI assistant that lives in your WeChat: chat, reminders, pluggable models.",
+  "license": "MIT",
+  "type": "module",
+  "files": ["dist"],
+  "bin": { "wxagent": "./dist/cli.js" },
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "engines": { "node": ">=22.13.0" },
+  "scripts": { "build": "tsdown", "typecheck": "tsc -p tsconfig.json" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "@wxagent/sdk": "0.1.0",
+    "croner": "^11.0.0",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "devDependencies": { "@types/qrcode-terminal": "^0.12.2" },
+  "keywords": ["wechat", "weixin", "agent", "assistant", "claude", "reminder"]
+}
