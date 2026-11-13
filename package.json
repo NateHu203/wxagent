@@ -2,12 +2,18 @@
   "name": "wxagent-monorepo",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/sdk", "packages/agent"],
-  "engines": { "node": ">=22.13.0" },
+  "workspaces": [
+    "packages/sdk",
+    "packages/agent"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "build": "npm run build -w @wxagent/sdk && npm run build -w wxagent",
     "test": "vitest run",
-    "typecheck": "npm run typecheck -w @wxagent/sdk && npm run typecheck -w wxagent"
+    "typecheck": "npm run typecheck -w @wxagent/sdk && npm run typecheck -w wxagent",
+    "start": "node packages/agent/dist/cli.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
