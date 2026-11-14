@@ -1,3 +1,4 @@
+import { chmodSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 
 const SCHEMA = `
@@ -67,6 +68,10 @@ export class Store {
   /** `path` is a file, or `":memory:"`. */
   constructor(path: string) {
     this.db = new DatabaseSync(path);
+    if (path !== ":memory:") {
+      // Chat history and reminders are private: owner-only, like the login file.
+      chmodSync(path, 0o600);
+    }
     this.db.exec(SCHEMA);
   }
 
