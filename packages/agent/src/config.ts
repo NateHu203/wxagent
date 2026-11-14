@@ -12,10 +12,20 @@ export interface Config {
   home: string;
   /** Human-readable name of the model in use, for the startup banner. */
   modelLabel: string;
-  provider: "anthropic" | "openai";
+  provider: Provider;
   stateFile: string;
   timezone: string;
 }
+
+export type Provider = "anthropic" | "openai" | "openrouter";
+
+const PROVIDERS: readonly Provider[] = ["anthropic", "openai", "openrouter"];
+const isProvider = (value: string): value is Provider => PROVIDERS.includes(value as Provider);
+
+const OPENAI_BASE_URL = "https://api.openai.com/v1";
+export const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+/** OpenRouter's id for the same model wxagent uses by default with Anthropic. */
+export const DEFAULT_OPENROUTER_MODEL = "anthropic/claude-opus-5.5";
 
 type Env = Record<string, string | undefined>;
 
@@ -35,11 +45,23 @@ export const loadEnvFiles = (env: Env = process.env): void => {
   }
 };
 
+const modelLabel = (provider: Provider, env: Env): string => {
+  if (provider === "openrouter") {
+    return `${env.WXAGENT_MODEL || DEFAULT_OPENROUTER_MODEL} @ OpenRouter`;
+  }
+  if (provider === "openai") {
+    return `${env.WXAGENT_MODEL} @ ${env.OPENAI_BASE_URL || OPENAI_BASE_URL}`;
+  }
+  return env.WXAGENT_MODEL || DEFAULT_CLAUDE_MODEL;
+};
+
 export const loadConfig = (env: Env = process.env): Config => {
   const home = homeDir(env);
   const provider = (env.WXAGENT_PROVIDER || "anthropic").toLowerCase();
-  if (provider !== "anthropic" && provider !== "openai") {
-    throw new ConfigError(`WXAGENT_PROVIDER 只能是 anthropic 或 openai，现在是 "${provider}"。`);
+  if (!isProvider(provider)) {
+    throw new ConfigError(
+      `WXAGENT_PROVIDER 只能是 anthropic、openrouter 或 openai，现在是 "${provider}"。`
+    );
   }
   if (provider === "openai" && !env.WXAGENT_MODEL) {
     throw new ConfigError("使用 openai 兼容接口时必须设置 WXAGENT_MODEL（模型名）。");
@@ -55,10 +77,7 @@ export const loadConfig = (env: Env = process.env): Config => {
     stateFile: join(home, "wechat.json"),
     dbFile: join(home, "wxagent.db"),
     provider,
-    modelLabel:
-      provider === "anthropic"
-        ? env.WXAGENT_MODEL || DEFAULT_CLAUDE_MODEL
-        : `${env.WXAGENT_MODEL} @ ${env.OPENAI_BASE_URL || "https://api.openai.com/v1"}`,
+    modelLabel: modelLabel(provider, env),
     timezone,
     allow: (env.WXAGENT_ALLOW ?? "")
       .split(",")
@@ -68,9 +87,16 @@ export const loadConfig = (env: Env = process.env): Config => {
 };
 
 export const createModel = (config: Config, env: Env = process.env): Model => {
+  if (config.provider === "openrouter") {
+    return new OpenAICompatibleModel({
+      baseUrl: OPENROUTER_BASE_URL,
+      apiKey: env.OPENROUTER_API_KEY,
+      model: env.WXAGENT_MODEL || DEFAULT_OPENROUTER_MODEL,
+    });
+  }
   if (config.provider === "openai") {
     return new OpenAICompatibleModel({
-      baseUrl: env.OPENAI_BASE_URL || "https://api.openai.com/v1",
+      baseUrl: env.OPENAI_BASE_URL || OPENAI_BASE_URL,
       apiKey: env.OPENAI_API_KEY,
       model: env.WXAGENT_MODEL as string,
     });

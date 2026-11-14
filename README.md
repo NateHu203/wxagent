@@ -62,7 +62,16 @@ npm start -- --help
 
 ### 换模型
 
-默认用 Claude。也可以换成任何兼容 OpenAI Chat Completions 接口、并且支持 function calling 的服务，比如 DeepSeek、通义千问、Moonshot，或者本地的 Ollama：
+默认用 Claude。
+
+用 [OpenRouter](https://openrouter.ai) 的话，只要两行。默认模型是 `anthropic/claude-opus-5.5`，想换就再设一个 `WXAGENT_MODEL`：
+
+```bash
+WXAGENT_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-...
+```
+
+也可以换成任何兼容 OpenAI Chat Completions 接口、并且支持 function calling 的服务，比如 DeepSeek、通义千问、Moonshot，或者本地的 Ollama：
 
 ```bash
 WXAGENT_PROVIDER=openai

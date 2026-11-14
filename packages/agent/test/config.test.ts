@@ -30,6 +30,17 @@ describe("loadConfig", () => {
     expect(createModel(config, env)).toBeInstanceOf(OpenAICompatibleModel);
   });
 
+  it("supports OpenRouter with a default model", () => {
+    const env = { WXAGENT_PROVIDER: "OpenRouter", OPENROUTER_API_KEY: "test" };
+    const config = loadConfig(env);
+    expect(config.provider).toBe("openrouter");
+    expect(config.modelLabel).toBe("anthropic/claude-opus-5.5 @ OpenRouter");
+    expect(createModel(config, env)).toBeInstanceOf(OpenAICompatibleModel);
+    expect(loadConfig({ ...env, WXAGENT_MODEL: "openai/gpt-5" }).modelLabel).toBe(
+      "openai/gpt-5 @ OpenRouter"
+    );
+  });
+
   it("explains configuration mistakes", () => {
     expect(() => loadConfig({ WXAGENT_PROVIDER: "gemini" })).toThrow(ConfigError);
     expect(() => loadConfig({ WXAGENT_PROVIDER: "openai" })).toThrow(/WXAGENT_MODEL/);

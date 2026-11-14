@@ -24,6 +24,9 @@ const HELP = `wxagent - 住在你微信里的个人 AI 助理
   WXAGENT_ALLOW       只允许这些微信用户 id 使用，逗号分隔；默认不限制
   WXAGENT_HOME        数据目录，默认 ~/.wxagent
 
+  用 OpenRouter（默认模型 anthropic/claude-opus-5.5，可用 WXAGENT_MODEL 改）：
+  WXAGENT_PROVIDER=openrouter  OPENROUTER_API_KEY=...
+
   换成其他模型（任何兼容 OpenAI 接口的服务）：
   WXAGENT_PROVIDER=openai  OPENAI_BASE_URL=...  OPENAI_API_KEY=...  WXAGENT_MODEL=...
 `;
@@ -59,6 +62,9 @@ const start = async (config: Config): Promise<void> => {
     consoleLogger.warn(
       "没有找到 ANTHROPIC_API_KEY。如果你没有用别的方式登录 Anthropic，收到消息时模型调用会失败。"
     );
+  }
+  if (config.provider === "openrouter" && !process.env.OPENROUTER_API_KEY) {
+    consoleLogger.warn("没有找到 OPENROUTER_API_KEY，收到消息时模型调用会失败。");
   }
   const model = createModel(config);
   const login = new AbortController();
