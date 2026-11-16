@@ -4,7 +4,13 @@ const detail = (error: unknown): string => {
   if (error === undefined) {
     return "";
   }
-  return `: ${error instanceof Error ? error.message : String(error)}`;
+  if (!(error instanceof Error)) {
+    return `: ${String(error)}`;
+  }
+  // `fetch failed` alone says nothing; the reason (ENOTFOUND, ECONNRESET…) is in the cause.
+  const cause = error.cause as { code?: unknown; message?: unknown } | undefined;
+  const reason = cause?.code ?? cause?.message;
+  return `: ${error.message}${reason === undefined ? "" : ` (${String(reason)})`}`;
 };
 
 /** Default logger: prefixed lines on stderr. */

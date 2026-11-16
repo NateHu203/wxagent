@@ -120,6 +120,8 @@ const isContextRejection = (error: unknown): error is WeChatApiError =>
  * ```
  */
 export class WeChatBot {
+  /** When the current run of failed polls began; `undefined` while polling works. */
+  private outageSince: number | undefined;
   private pausedUntil = 0;
   private readonly shutdown = new AbortController();
   private readonly typingTickets = new Map<string, TypingTicket>();
@@ -216,6 +218,7 @@ export class WeChatBot {
         continue;
       }
       failures = 0;
+      this.noteRecovered();
       if (response.longpolling_timeout_ms && response.longpolling_timeout_ms > 0) {
         timeoutMs = response.longpolling_timeout_ms;
       }
@@ -352,12 +355,23 @@ export class WeChatBot {
     const attempt = failures + 1;
     const backOff = attempt >= timings.maxConsecutiveFailures;
     const delayMs = backOff ? timings.backoffDelayMs : timings.retryDelayMs;
-    this.log.warn(
-      `getupdates failed (${attempt}/${timings.maxConsecutiveFailures}); retrying in ${delayMs} ms`,
-      error
-    );
+    // An outage can last hours (a laptop asleep, a network down): report it
+    // once when it starts and once when it ends, not on every retry.
+    if (this.outageSince === undefined) {
+      this.outageSince = Date.now();
+      this.log.warn("cannot reach WeChat (getupdates failed); retrying until it is back", error);
+    }
     await waitFor(delayMs, this.shutdown.signal);
     return backOff ? 0 : attempt;
+  }
+
+  private noteRecovered(): void {
+    if (this.outageSince === undefined) {
+      return;
+    }
+    const minutes = Math.round((Date.now() - this.outageSince) / 60_000);
+    this.outageSince = undefined;
+    this.log.info(`reconnected to WeChat after about ${minutes} min`);
   }
 
   private async typingTicket(userId: string): Promise<string | undefined> {

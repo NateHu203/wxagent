@@ -167,6 +167,32 @@ describe("messages", () => {
     ]);
   });
 
+  it("reports an outage once when it starts and once when it ends", async () => {
+    const down = () => new Response("boom", { status: 500 });
+    mockILink({
+      ...lifecycle,
+      "ilink/bot/getupdates": [
+        down,
+        down,
+        down,
+        down,
+        ok({ get_updates_buf: "c1", msgs: [inboundText("back")] }),
+        hang,
+      ],
+    });
+    const warnings: string[] = [];
+    const infos: string[] = [];
+    const logger = {
+      ...silentLogger,
+      warn: (message: string) => void warnings.push(message),
+      info: (message: string) => void infos.push(message),
+    };
+    const seen = await take(await connect({ logger }), 1);
+    expect(seen.map((m) => m.text)).toEqual(["back"]);
+    expect(warnings.filter((w) => w.includes("getupdates"))).toHaveLength(1);
+    expect(infos.filter((i) => i.includes("reconnected"))).toHaveLength(1);
+  });
+
   it("close() ends an idle long-poll promptly", async () => {
     mockILink({ ...lifecycle, "ilink/bot/getupdates": hang });
     const bot = await connect();
