@@ -10,9 +10,9 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "npm run build -w @wxagent/sdk && npm run build -w wxagent",
+    "build": "npm run build -w @wxagent/sdk && npm run build -w @wxagent/cli",
     "test": "vitest run",
-    "typecheck": "npm run typecheck -w @wxagent/sdk && npm run typecheck -w wxagent",
+    "typecheck": "npm run typecheck -w @wxagent/sdk && npm run typecheck -w @wxagent/cli",
     "start": "node packages/agent/dist/cli.mjs"
   },
   "devDependencies": {

@@ -1,20 +1,57 @@
 {
-  "name": "wxagent",
-  "version": "0.1.0",
+  "name": "@wxagent/cli",
+  "version": "0.1.1",
   "description": "A personal AI assistant that lives in your WeChat: chat, reminders, pluggable models.",
   "license": "MIT",
+  "author": "Xinyuan Hu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NateHu203/wxagent.git",
+    "directory": "packages/agent"
+  },
+  "homepage": "https://github.com/NateHu203/wxagent#readme",
+  "bugs": "https://github.com/NateHu203/wxagent/issues",
   "type": "module",
-  "files": ["dist"],
-  "bin": { "wxagent": "./dist/cli.mjs" },
-  "exports": { ".": { "types": "./dist/index.d.mts", "default": "./dist/index.mjs" } },
-  "engines": { "node": ">=22.13.0" },
-  "scripts": { "build": "tsdown", "typecheck": "tsc -p tsconfig.json" },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "wxagent": "dist/cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json",
+    "prepack": "cp ../../README.md ../../LICENSE ."
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",
-    "@wxagent/sdk": "0.1.0",
+    "@wxagent/sdk": "0.1.1",
     "croner": "^11.0.0",
     "qrcode-terminal": "^0.12.0"
   },
-  "devDependencies": { "@types/qrcode-terminal": "^0.12.2" },
-  "keywords": ["wechat", "weixin", "agent", "assistant", "claude", "reminder"]
+  "devDependencies": {
+    "@types/qrcode-terminal": "^0.12.2"
+  },
+  "keywords": [
+    "wechat",
+    "weixin",
+    "agent",
+    "assistant",
+    "claude",
+    "reminder"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

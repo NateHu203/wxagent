@@ -1,14 +1,45 @@
 {
   "name": "@wxagent/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "WeChat bot SDK for Node.js, built on Tencent's official iLink bot API: QR login, receive and send messages.",
   "license": "MIT",
+  "author": "Xinyuan Hu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NateHu203/wxagent.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/NateHu203/wxagent#readme",
+  "bugs": "https://github.com/NateHu203/wxagent/issues",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
-  "exports": { ".": { "types": "./dist/index.d.mts", "default": "./dist/index.mjs" } },
-  "engines": { "node": ">=22.13.0" },
-  "scripts": { "build": "tsdown", "typecheck": "tsc -p tsconfig.json" },
-  "publishConfig": { "access": "public" },
-  "keywords": ["wechat", "weixin", "ilink", "bot", "agent"]
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json",
+    "prepack": "cp ../../README.md ../../LICENSE ."
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "wechat",
+    "weixin",
+    "ilink",
+    "bot",
+    "agent"
+  ]
 }

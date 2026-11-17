@@ -4,13 +4,13 @@
 
 A personal AI assistant that lives in your WeChat, plus the bot SDK underneath it. Built on Tencent's official iLink bot API (the channel behind WeChat's ClawBot), so the bot is its own contact in your WeChat and never logs in as you.
 
-> **状态：早期版本。** 代码有完整的自动化测试，登录二维码也能从微信服务器正常取回，但扫码之后的真实收发还没有端到端验证过。包还没有发布到 npm。
+> **状态：早期版本。** 扫码登录、收发消息、设提醒和到点主动推送都已经用真实微信账号验证过。还没弄清楚的事情见下面的「已知限制」。
 
 这个仓库有两层：
 
 | 包 | 给谁用 | 做什么 |
 |---|---|---|
-| [`wxagent`](packages/agent) | 想直接用的人 | 开箱即用的助理：聊天、设提醒，模型默认 Claude，可以换 |
+| [`@wxagent/cli`](packages/agent) | 想直接用的人 | 开箱即用的助理：聊天、设提醒，模型默认 Claude，可以换 |
 | [`@wxagent/sdk`](packages/sdk) | 开发者 | 微信机器人 SDK：扫码登录、收消息、发消息，零依赖 |
 
 ## 它能做什么
@@ -29,11 +29,9 @@ A personal AI assistant that lives in your WeChat, plus the bot SDK underneath i
 需要 Node.js 22.13 或更高版本。
 
 ```bash
-git clone <this repo> wxagent && cd wxagent
-npm install
-npm run build
-cp .env.example .env    # 填上 ANTHROPIC_API_KEY
-npm start
+npm install -g @wxagent/cli
+export ANTHROPIC_API_KEY=sk-ant-...    # 或者写进 ~/.wxagent/.env，其他模型见下面的「换模型」
+wxagent
 ```
 
 第一次启动，终端里会显示一个二维码。用微信扫码并在手机上确认，之后你的微信里会出现一个机器人联系人，给它发消息就行。登录信息保存在 `~/.wxagent/`，下次启动不用再扫。
@@ -43,10 +41,12 @@ npm start
 其他命令：
 
 ```bash
-npm start -- login     # 只扫码登录
-npm start -- logout    # 删除保存的登录信息
-npm start -- --help
+wxagent login     # 只扫码登录
+wxagent logout    # 删除保存的登录信息
+wxagent --help
 ```
+
+想从源码运行的话：`git clone https://github.com/NateHu203/wxagent && cd wxagent && npm install && npm run build && npm start`。
 
 ## 配置
 
@@ -101,7 +101,7 @@ for await (const message of bot.messages()) {
 助理的能力来自工具。内置的是三个提醒工具，你可以加自己的：
 
 ```ts
-import { Agent, ClaudeModel, defineTool, reminderTools, Store } from "wxagent";
+import { Agent, ClaudeModel, defineTool, reminderTools, Store } from "@wxagent/cli";
 import { consoleLogger, WeChatBot } from "@wxagent/sdk";
 
 const weather = defineTool({
@@ -147,6 +147,7 @@ await agent.run();
 ## 已知限制
 
 - **主动推送的时间窗口还不确定。** iLink 要求机器人发消息时带上你最近一条消息里的凭据（`context_token`）。腾讯没有公开说明它多久过期。有第三方资料说大约 24 小时，没有被证实。也就是说，隔了很多天的提醒有可能推不出去，这时它会按上面说的排队补发。保险的做法是偶尔跟机器人说句话。
+- **提醒到了微信不一定弹通知。** 一次实测里，提醒按时出现在聊天中，但手机没有弹出通知，原因还没确认。弹不弹通知由微信客户端决定，程序控制不了。
 - **只支持私聊文字。** 图片、语音、文件和群聊还没做。
 - **iLink 没有完整的官方文档。** 这里的实现参考了腾讯开源的 [openclaw-weixin](https://github.com/Tencent/openclaw-weixin)（MIT）及其协议说明。腾讯没有明确说明是否欢迎 OpenClaw 以外的客户端接入，接口也可能变化。请遵守微信的使用规范，风险自担。
 - **默认不限制谁能用。** 如果有其他人能给你的机器人发消息，设置 `WXAGENT_ALLOW`，免得消耗你的模型额度。
@@ -155,7 +156,7 @@ await agent.run();
 
 ```bash
 npm install
-npm test            # 45 个测试，网络全部是模拟的
+npm test            # 47 个测试，网络全部是模拟的
 npm run typecheck
 npm run build
 ```

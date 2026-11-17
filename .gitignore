@@ -2,3 +2,6 @@ node_modules/
 dist/
 .env
 *.tgz
+# copied from the repo root at pack time
+packages/*/README.md
+packages/*/LICENSE
